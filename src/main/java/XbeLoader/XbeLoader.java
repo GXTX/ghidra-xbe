@@ -467,19 +467,33 @@ public class XbeLoader extends AbstractLibrarySupportLoader {
 			Msg.error(this, e.getMessage());
 		}
 
-		// Unscramble entry point
-		long ENTRY_DEBUG  = 0x94859D4BL;
-		long ENTRY_RETAIL = 0xA8FC57ABL;
-		long entry = header.entryAddr ^ ENTRY_DEBUG;
-		if (entry < 0x4000000) {
-			isDebug = true;
-		} else {
-			entry = header.entryAddr ^ ENTRY_RETAIL;
-			isDebug = false;
-		}
+		// Read headers into memory
+		reader.setPointerIndex(0);
+		createSection(api, "headers", reader,
+				header.baseAddr, header.headersSize,
+				0, header.headersSize, false, false);
 
 		// Add entry point
 		Address entryAddr = api.toAddr(entry);
+
+		// Unscramble entry point
+		// https://github.com/radareorg/radare2/blob/0acfd3d3/libr/bin/p/bin_xbe.c#L33
+		if ((entryAddr & 0xF0000000L) == 0x40000000L) {
+			// segaboot specific
+			entryAddr ^= 0x40B5C16EL;
+			kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x2290059DL);
+		} else {
+			if ((header.kernThunkAddr & 0x80000000L) == 0x80000000L) {
+				// Debug
+				entryAddr ^= 0x94859D4BL;
+				kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x94859D4BL);
+			} else {
+				// Retail
+				entryAddr ^= 0xA8FC57ABL;
+				kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x5B6D40B6L);
+			}
+		}
+
 		try {
 			program.getSymbolTable().createLabel(entryAddr, "entry", SourceType.IMPORTED);
 			program.getSymbolTable().addExternalEntryPoint(entryAddr);
@@ -487,12 +501,6 @@ public class XbeLoader extends AbstractLibrarySupportLoader {
 		} catch (Exception e) {
 			Msg.error(this, e.getMessage());
 		}
-
-		// Read headers into memory
-		reader.setPointerIndex(0);
-		createSection(api, "headers", reader,
-				header.baseAddr, header.headersSize,
-				0, header.headersSize, false, false);
 
 		// Read sections headers
 		reader.setPointerIndex(header.sectionHeadersAddr - header.baseAddr);
@@ -514,13 +522,6 @@ public class XbeLoader extends AbstractLibrarySupportLoader {
 		}
 
 		// Process imports
-		long KTHUNK_DEBUG  = 0xEFB1F152L;
-		long KTHUNK_RETAIL = 0x5B6D40B6L;
-		if (isDebug) {
-			kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ KTHUNK_DEBUG);
-		} else {
-			kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ KTHUNK_RETAIL);
-		}
 		processImports(program, monitor, log);
 
 		createStruct(api, log, header.toDataType(), header.baseAddr);
