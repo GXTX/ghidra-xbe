@@ -460,7 +460,6 @@ public class XbeLoader extends AbstractLibrarySupportLoader {
 
 		// Read XBE header
 		header = new XbeImageHeader(reader);
-
 		try {
 			program.setImageBase(api.toAddr(header.baseAddr), true);
 		} catch (Exception e) {
