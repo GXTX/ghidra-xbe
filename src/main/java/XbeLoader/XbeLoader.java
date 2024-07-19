@@ -481,7 +481,7 @@ public class XbeLoader extends AbstractLibrarySupportLoader {
 			entry ^= 0x40B5C16EL;
 			kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x2290059DL);
 		} else {
-			if ((entry ^ 0x94859D4BL) < 0x4000000) {
+			if ((entry ^ 0x94859D4BL) < 0x4000000L) {
 				// Debug
 				entry ^= 0x94859D4BL;
 				kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x94859D4BL);
