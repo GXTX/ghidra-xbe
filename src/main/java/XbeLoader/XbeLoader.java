@@ -480,15 +480,18 @@ public class XbeLoader extends AbstractLibrarySupportLoader {
 			// segaboot specific
 			entry ^= 0x40B5C16EL;
 			kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x2290059DL);
+			log.appendMsg("sega");
 		} else {
 			if ((entry ^ 0x94859D4BL) < 0x4000000L) {
 				// Debug
 				entry ^= 0x94859D4BL;
 				kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x94859D4BL);
+				log.appendMsg("deb");
 			} else {
 				// Retail
 				entry ^= 0xA8FC57ABL;
 				kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x5B6D40B6L);
+				log.appendMsg("ret");
 			}
 		}
 
