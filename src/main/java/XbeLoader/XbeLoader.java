@@ -476,12 +476,12 @@ public class XbeLoader extends AbstractLibrarySupportLoader {
 
 		// Unscramble entry point
 		// https://github.com/radareorg/radare2/blob/0acfd3d3/libr/bin/p/bin_xbe.c#L33
-		if ((entry & 0xF0000000L) == 0x40000000L) {
+		if ((entry & 0xF0000000) == 0x40000000) {
 			// segaboot specific
 			entry ^= 0x40B5C16EL;
 			kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x2290059DL);
 		} else {
-			if ((header.kernThunkAddr & 0x80000000L) == 0x80000000L) {
+			if (entry < 0x4000000) {
 				// Debug
 				entry ^= 0x94859D4BL;
 				kernelThunkTableAddr = api.toAddr(header.kernThunkAddr ^ 0x94859D4BL);
