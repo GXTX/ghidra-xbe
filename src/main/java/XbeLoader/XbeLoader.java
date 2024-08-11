@@ -36,7 +36,7 @@ import ghidra.program.model.data.PointerDataType;
  * TODO: Provide class-level documentation that describes what this loader does.
  */
 public class XbeLoader extends AbstractLibrarySupportLoader {
-	public static String XBE_NAME = "Xbox Executable Format (XBE)";
+	public static String XBE_NAME = "Portable Executable (PE)";
 	public XbeImageHeader header;
 	List<XbeSectionHeader> sectionHeaders;
 	boolean isDebug;
